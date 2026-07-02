@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barranco Bohemia - Mapa Interactivo & Guía Turística</title>
+  <meta name="description" content="Descubre Barranco, el distrito más bohemio e histórico de Lima, Perú. Mapa interactivo de atracciones, restaurantes, bares, discotecas, accesos y rutas guiadas.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-theme">
+
+  <!-- Splash Screen -->
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+      <div class="splash-logo">
+        <svg viewBox="0 0 100 100" class="splash-svg">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="var(--accent-color)" stroke-width="2" />
+          <path d="M50 15 L50 85 M15 50 L85 50" stroke="var(--accent-color)" stroke-width="1" stroke-dasharray="2 2" />
+          <path d="M30 40 Q50 20 70 40 Q50 60 30 40 Z" fill="var(--accent-color)" opacity="0.15" />
+          <path d="M35 60 Q50 80 65 60" fill="none" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round" />
+          <circle cx="50" cy="45" r="8" fill="var(--accent-color)" />
+        </svg>
+      </div>
+      <h1 class="splash-title">Barranco Bohemia</h1>
+      <p class="splash-subtitle">Guía de Navegación & Cultura</p>
+      <div class="loading-bar">
+        <div class="loading-progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-main">
+        <div class="logo-area">
+          <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <h2>Barranco</h2>
+            <span>LIMA, PERÚ</span>
+          </div>
+        </div>
+        
+        <div class="header-controls">
+          <button id="theme-toggle" class="icon-btn" title="Cambiar Tema (Día/Noche)" aria-label="Cambiar Tema">
+            <!-- Sun Icon -->
+            <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <!-- Moon Icon -->
+            <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Search & Filters Container -->
+      <div class="search-filter-container">
+        <div class="search-wrapper">
+          <input type="text" id="search-input" placeholder="Buscar lugares, restaurantes, bares..." aria-label="Buscar lugares">
+          <button class="search-clear-btn" id="search-clear" style="display:none;">&times;</button>
+          <div class="search-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+        </div>
+        
+        <!-- Category Chips -->
+        <div class="filter-scroll" id="filters-container">
+          <button class="filter-chip active" data-category="all">Todos</button>
+          <button class="filter-chip" data-category="attraction">⚡ Atracciones</button>
+          <button class="filter-chip" data-category="restaurant">🍽️ Restaurantes</button>
+          <button class="filter-chip" data-category="bar">🍹 Bares</button>
+          <button class="filter-chip" data-category="club">🎸 Discotecas</button>
+          <button class="filter-chip" data-category="public">🌳 Parques y Vías</button>
+          <button class="filter-chip" data-category="access">🚇 Accesos</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      
+      <!-- Left Panel (Directory & Info) -->
+      <section class="sidebar-panel" id="sidebar-panel">
+        
+        <!-- Tab Navigation -->
+        <div class="sidebar-tabs">
+          <button class="tab-btn active" data-tab="places-list">
+            <span>Directorio</span>
+          </button>
+          <button class="tab-btn" data-tab="routes-guide">
+            <span>Rutas Waze</span>
+          </button>
+          <button class="tab-btn" data-tab="pocket-guide">
+            <span>Guía de Bolsillo</span>
+          </button>
+        </div>
+        
+        <!-- Tab Content: Places List -->
+        <div class="tab-content active" id="tab-places-list">
+          <div class="list-header">
+            <span id="results-count">18 lugares encontrados</span>
+            <div class="view-toggle">
+              <span class="active-category-name">Barranco Completo</span>
+            </div>
+          </div>
+          <div class="places-scroll-container" id="places-list-container">
+            <!-- Places Card elements will be dynamically injected here -->
+          </div>
+        </div>
+        
+        <!-- Tab Content: Routes & Waze Navigator -->
+        <div class="tab-content" id="tab-routes-guide">
+          <div class="route-builder">
+            <h3>Planificar Ruta Bohemia</h3>
+            <p class="route-desc">Simula navegación GPS en Barranco. Selecciona dos puntos para trazar la ruta óptima a pie.</p>
+            
+            <div class="route-inputs">
+              <div class="input-group">
+                <label for="route-start">Punto de Partida:</label>
+                <select id="route-start">
+                  <!-- Will be filled via JS -->
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="route-end">Destino:</label>
+                <select id="route-end">
+                  <!-- Will be filled via JS -->
+                </select>
+              </div>
+            </div>
+            
+            <button id="btn-calculate-route" class="primary-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+              </svg>
+              Trazar Ruta en Waze
+            </button>
+            <button id="btn-clear-route" class="secondary-btn" style="display: none;">Limpiar Ruta</button>
+          </div>
+          
+          <!-- Route Details (Hidden by default) -->
+          <div id="route-results-panel" class="route-results-panel" style="display: none;">
+            <div class="route-summary">
+              <div class="summary-metric">
+                <span class="metric-val" id="route-distance">0.8 km</span>
+                <span class="metric-lbl">Distancia</span>
+              </div>
+              <div class="summary-metric">
+                <span class="metric-val" id="route-time">10 min</span>
+                <span class="metric-lbl">A pie</span>
+              </div>
+              <div class="summary-metric">
+                <span class="metric-val" id="route-calories">45 kcal</span>
+                <span class="metric-lbl">Calorías</span>
+              </div>
+            </div>
+            
+            <div class="route-instructions-container">
+              <h4>Instrucciones de Navegación</h4>
+              <ol id="route-instructions-list" class="instructions-list">
+                <!-- Injected via JS -->
+              </ol>
+            </div>
+          </div>
+          
+          <!-- Preset Tours -->
+          <div class="preset-tours">
+            <h4>Rutas Temáticas Recomendadas</h4>
+            <div class="tour-card" data-tour="classic">
+              <div class="tour-icon">🏛️</div>
+              <div class="tour-info">
+                <h5>Ruta Clásica Barranquina</h5>
+                <p>Plaza Principal → Puente de los Suspiros → Bajada de Baños → El Mirador. La esencia de Barranco.</p>
+                <span class="tour-meta">450m • 8 min a pie</span>
+              </div>
+            </div>
+            <div class="tour-card" data-tour="art">
+              <div class="tour-icon">🎨</div>
+              <div class="tour-info">
+                <h5>Tour de Arte Contemporáneo</h5>
+                <p>MAC Lima → Bajada de Baños (Murales) → Galería de Arte → Museo Pedro de Osma.</p>
+                <span class="tour-meta">1.5 km • 22 min a pie</span>
+              </div>
+            </div>
+            <div class="tour-card" data-tour="nightlife">
+              <div class="tour-icon">🍻</div>
+              <div class="tour-info">
+                <h5>Circuito Nocturno Bohemia</h5>
+                <p>Juanito Cantina → Ayahuasca Mansion → Dada Restobar → El Dragón.</p>
+                <span class="tour-meta">950m • 14 min a pie</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tab Content: Pocket Guide & Audio Guide -->
+        <div class="tab-content" id="tab-pocket-guide">
+          <div class="guide-welcome">
+            <h3>Barranco: El Corazón Bohemio de Lima</h3>
+            <p>Barranco es conocido como el barrio de los artistas, poetas y la movida cultural de Lima. Sus casonas republicanas, murales coloridos y cercanía al mar le otorgan una atmósfera única.</p>
+          </div>
+          
+          <!-- Audio Guide Player -->
+          <div class="audio-guide-player">
+            <div class="player-header">
+              <div class="audio-badge">🎧 AUDIO GUÍA INMERSIVA</div>
+              <h4 id="audio-title">Historia de la Bajada de Baños y el Puente</h4>
+            </div>
+            
+            <div class="player-visualizer">
+              <div class="bars-container">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              </div>
+            </div>
+            
+            <div class="audio-controls">
+              <button id="audio-prev" class="player-btn-small" title="Anterior">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+              </button>
+              <button id="audio-play" class="player-btn-large" title="Reproducir/Pausar">
+                <svg class="play-svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <svg class="pause-svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+              </button>
+              <button id="audio-next" class="player-btn-small" title="Siguiente">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+              </button>
+            </div>
+            
+            <div class="player-progress">
+              <div class="progress-bar-bg" id="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+              </div>
+              <div class="player-time">
+                <span id="audio-current-time">0:00</span>
+                <span id="audio-total-time">2:15</span>
+              </div>
+            </div>
+            
+            <div class="audio-transcript">
+              <p id="audio-text">"La Bajada de Baños era originalmente una quebrada natural que usaban los pescadores del distrito de Surco para bajar a las playas de Barranco. Con los años, se construyeron hermosas casonas coloniales y republicanas a sus costados..."</p>
+            </div>
+          </div>
+          
+          <!-- Access Points Quick Guide -->
+          <div class="access-guide">
+            <h4>¿Cómo llegar y salir de Barranco?</h4>
+            
+            <div class="access-item">
+              <div class="access-bullet metropolitano">🚇</div>
+              <div class="access-info">
+                <h5>Metropolitano (Autobús Rápido)</h5>
+                <p>Las estaciones <strong>Estación Balta</strong> (norte) y <strong>Estación Bulevar</strong> (centro) conectan Barranco con Miraflores, San Isidro y el Centro Histórico de Lima en minutos.</p>
+              </div>
+            </div>
+            
+            <div class="access-item">
+              <div class="access-bullet car">🚗</div>
+              <div class="access-info">
+                <h5>Acceso Costa Verde (Circuito de Playas)</h5>
+                <p>La **Bajada de Armendáriz** es el principal punto de acceso vehicular desde la autopista de la playa. Para peatones, la **Bajada de Baños** conecta directamente el centro del distrito con la arena del mar.</p>
+              </div>
+            </div>
+            
+            <div class="access-item">
+              <div class="access-bullet walk">🚶</div>
+              <div class="access-info">
+                <h5>Ingresos Peatonales Principales</h5>
+                <p>Desde Miraflores, puedes caminar por el Malecón de Miraflores conectando con el **Malecón Paul Harris** en Barranco, una caminata panorámica frente al Océano Pacífico.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Map Display Area -->
+      <section class="map-panel">
+        <div id="map"></div>
+        
+        <!-- Floating Controls over Map -->
+        <div class="map-floating-controls">
+          <button id="btn-gps-simulate" class="floating-map-btn" title="Simular Ubicación GPS Actual">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+            <span>Mi Ubicación</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Detail Slide-Up Drawer (Mobile) & Card Modal (Desktop Overlay) -->
+      <div id="detail-drawer" class="detail-drawer">
+        <div class="drawer-handle" id="drawer-handle">
+          <span class="handle-bar"></span>
+        </div>
+        
+        <div class="drawer-content">
+          <button class="close-drawer-btn" id="close-drawer-btn" aria-label="Cerrar detalles">&times;</button>
+          
+          <div class="drawer-grid">
+            <!-- Place Images Gallery -->
+            <div class="drawer-image-section">
+              <img id="drawer-place-img" src="" alt="Imagen del lugar">
+              <div class="image-overlay-category" id="drawer-place-badge">Categoría</div>
+            </div>
+            
+            <!-- Place Info details -->
+            <div class="drawer-info-section">
+              <div class="drawer-title-row">
+                <h3 id="drawer-place-name">Nombre del Lugar</h3>
+                <div class="rating-badge">
+                  <span id="drawer-place-rating">4.8</span>
+                  <span class="star-icon">★</span>
+                </div>
+              </div>
+              
+              <p class="drawer-tagline" id="drawer-place-tagline">Descripción corta o eslogan</p>
+              
+              <div class="divider"></div>
+              
+              <p class="drawer-description" id="drawer-place-desc">Descripción larga detallada del lugar, su historia y su importancia cultural en Barranco.</p>
+              
+              <div class="meta-details">
+                <div class="meta-row">
+                  <span class="meta-icon">📍</span>
+                  <span class="meta-text" id="drawer-place-address">Dirección</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-icon">⏰</span>
+                  <span class="meta-text" id="drawer-place-hours">Horario de Atención</span>
+                </div>
+                <div class="meta-row highlight" id="drawer-special-row">
+                  <span class="meta-icon" id="drawer-special-icon">✨</span>
+                  <span class="meta-text" id="drawer-special-text">Especialidad o tip</span>
+                </div>
+              </div>
+              
+              <div class="drawer-actions">
+                <button id="btn-draw-to-here" class="primary-btn flex-fill">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                  </svg>
+                  ¿Cómo llegar? (Ruta)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+  
+  <script src="app.js"></script>
+</body>
+</html>
